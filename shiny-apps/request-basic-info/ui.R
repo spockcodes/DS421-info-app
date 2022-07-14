@@ -1,5 +1,6 @@
-# Dean Attali
-# September 2014
+# Dean Attali -- September 2014
+
+# Adapted by Matt Davis (July 2022) for use in USAFA's DS421 Capstone course.
 
 # This is the ui portion of a shiny app that "mimics" a Google form, in the
 # sense that it lets users enter some predefined fields and saves the answer
@@ -19,8 +20,8 @@ shinyUI(fluidPage(
     )
   ),
 
-  title = "STAT545 Basic Student Info",
-  h2("STAT545 Basic Student Info"),
+  title = "DS 421 Basic Student Info",
+  h2("DS 421 Basic Student Info"),
   
   # admin panel will only be shown to users with sufficient privileges
   uiOutput("adminPanel"),
@@ -30,23 +31,28 @@ shinyUI(fluidPage(
     condition = "!output.formSubmitted",
     
     # form instructions
-    p("In order to facilitate communicating with you guys, it would help us
-      tremendously if you could provide us with some basic information."),
-    p("You don't have to submit this form, but we would REALLY appreciate it if you did."),
-    p("The fields marked with * are mandatory (if you choose to participate at all),
+    verticalLayout(
+      img(src="giphy.gif", align = "left",height='125px',width='250px'),
+    hr(),
+    
+    p("In order to facilitate collaboration among your teammates and classmates, it would help me
+      tremendously if you could provide some basic information."),
+    p("The fields marked with * are mandatory,
       and the rest are optional but highly recommended."),
-    strong("Help us help you :)"),
+    strong("Help me help you.")
+    ),
+    
     shiny::hr(),
     
     # form fields
-    textInput(inputId = "firstName", label = "First name (according to UBC) *"),
-    textInput(inputId = "lastName", label = "Last name (according to UBC) *"),
+    textInput(inputId = "firstName", label = "First name (as it appears on the roster) *"),
+    textInput(inputId = "lastName", label = "Last name (as it appears on the roster) *"),
     textInput(inputId = "studentNum",
               label = "Last 4 digits of UBC student number *"),
     uiOutput(outputId = "studentNumErr"),
-    textInput(inputId = "email", label = "Preferred email"),
-    selectInput(inputId = "osType", label = "Operating system",
-                choices = c("", "Windows 7", "Windows 8", "Mac", "Linux",
+    textInput(inputId = "email", label = "USAFA email"),
+    selectInput(inputId = "osType", label = "Preferred Operating system",
+                choices = c("", "Windows", "Mac", "Linux",
                             "Other"),
                 selected = ""),  
     textInput(inputId = "gitName", label = "GitHub username"),
