@@ -26,6 +26,9 @@ shinyUI(fluidPage(
   # admin panel will only be shown to users with sufficient privileges
   uiOutput("adminPanel"),
   
+  # show user info
+  verbatimTextOutput("userinfo"),
+  
   conditionalPanel(
     # only show this form before the form is submitted
     condition = "!output.formSubmitted",
@@ -50,7 +53,7 @@ shinyUI(fluidPage(
     textInput(inputId = "studentNum",
               label = "Last 4 digits of UBC student number *"),
     uiOutput(outputId = "studentNumErr"),
-    textInput(inputId = "email", label = "USAFA email"),
+    textInput(inputId = "email", label = "first.last@afacademy.af.edu"),
     selectInput(inputId = "osType", label = "Preferred Operating system",
                 choices = c("", "Windows", "Mac", "Linux",
                             "Other"),

@@ -9,12 +9,13 @@
 library(shiny)
 library(digest) # digest() Create hash function digests for R objects
 
-formName <- "2014-fall-basic-info"
+formName <- "2022-fall-basic-info"
 resultsDir <- file.path("data", formName)
 dir.create(resultsDir, recursive = TRUE, showWarnings = FALSE)
 
 # names of the fields on the form we want to save
-fieldNames <- c("firstName",
+fieldNames <- c("submitTime",
+                "firstName",
                 "lastName",
                 "studentNum",
                 "email",
@@ -28,62 +29,65 @@ adminUsers <- c("staff", "admin")
 
 shinyServer(function(input, output, session) {
 
-  ##########################################
-  ##### Admin panel#####
+  #############################
+  ## NONE OF THE ADMIN PANEL IS NEEDED FOR DS421
   
-  # if logged in user is admin, show a table aggregating all the data
-  isAdmin <- reactive({
-    !is.null(session$user) && session$user %in% adminUsers
-  })
-  infoTable <- reactive({
-    if (!isAdmin()) return(NULL)
-    
-    ### This code chunk reads all submitted responses and will have to change
-    ### based on where we store persistent data
-    infoFiles <- list.files(resultsDir)
-    allInfo <- lapply(infoFiles, function(x) {
-      read.csv(file.path(resultsDir, x))
-    })
-    ### End of reading data
-    
-    #allInfo <- data.frame(rbind_all(allInfo)) # dplyr version
-    #allInfo <- data.frame(rbindlist(allInfo)) # data.table version
-    allInfo <- data.frame(do.call(rbind, allInfo))
-    if (nrow(allInfo) == 0) {
-      allInfo <- data.frame(matrix(nrow = 1, ncol = length(fieldNames),
-                                   dimnames = list(list(), fieldNames)))
-    }
-    return(allInfo)
-  })
-  output$adminPanel <- renderUI({
-    if (!isAdmin()) return(NULL)
-    
-    div(id = "adminPanelInner",
-      h3("This table is only visible to admins",
-         style = "display: inline-block;"),
-      a("Show/Hide",
-        href = "javascript:toggleVisibility('adminTableSection');",
-        class = "left-space"),
-      div(id = "adminTableSection",
-        dataTableOutput("adminTable"),
-        downloadButton("downloadSummary", "Download results")
-      )
-    )
-  })
-  output$downloadSummary <- downloadHandler(
-    filename = function() { 
-      paste0(formName, "_", getFormattedTimestamp(), '.csv')  
-    },
-    content = function(file) {
-      write.csv(infoTable(), file, row.names = FALSE)
-    }
-  )
-  output$adminTable <- renderDataTable({
-    infoTable()
-  })
-  
-  ##### End admin panel #####
-  ##########################################
+  # ##########################################
+  # ##### Admin panel#####
+  # 
+  # # if logged in user is admin, show a table aggregating all the data
+  # isAdmin <- reactive({
+  #   !is.null(session$user) && session$user %in% adminUsers
+  # })
+  # infoTable <- reactive({
+  #   if (!isAdmin()) return(NULL)
+  #   
+  #   ### This code chunk reads all submitted responses and will have to change
+  #   ### based on where we store persistent data
+  #   infoFiles <- list.files(resultsDir)
+  #   allInfo <- lapply(infoFiles, function(x) {
+  #     read.csv(file.path(resultsDir, x))
+  #   })
+  #   ### End of reading data
+  #   
+  #   #allInfo <- data.frame(rbind_all(allInfo)) # dplyr version
+  #   #allInfo <- data.frame(rbindlist(allInfo)) # data.table version
+  #   allInfo <- data.frame(do.call(rbind, allInfo))
+  #   if (nrow(allInfo) == 0) {
+  #     allInfo <- data.frame(matrix(nrow = 1, ncol = length(fieldNames),
+  #                                  dimnames = list(list(), fieldNames)))
+  #   }
+  #   return(allInfo)
+  # })
+  # output$adminPanel <- renderUI({
+  #   if (!isAdmin()) return(NULL)
+  #   
+  #   div(id = "adminPanelInner",
+  #     h3("This table is only visible to admins",
+  #        style = "display: inline-block;"),
+  #     a("Show/Hide",
+  #       href = "javascript:toggleVisibility('adminTableSection');",
+  #       class = "left-space"),
+  #     div(id = "adminTableSection",
+  #       dataTableOutput("adminTable"),
+  #       downloadButton("downloadSummary", "Download results")
+  #     )
+  #   )
+  # })
+  # output$downloadSummary <- downloadHandler(
+  #   filename = function() { 
+  #     paste0(formName, "_", getFormattedTimestamp(), '.csv')  
+  #   },
+  #   content = function(file) {
+  #     write.csv(infoTable(), file, row.names = FALSE)
+  #   }
+  # )
+  # output$adminTable <- renderDataTable({
+  #   infoTable()
+  # })
+  # 
+  # ##### End admin panel #####
+  # ##########################################
   
   # only enable the Submit button when the mandatory fields are validated
   observe({
@@ -135,36 +139,60 @@ shinyServer(function(input, output, session) {
   observe({
     #if (input$submitConfirmDlg < 1) return(NULL)
     if (input$submitBtn < 1) return(NULL)
-        
+    
+    #get system time of submission
+    isolate(
+      timelist <- list("submitTime" = format(Sys.time(), "%d.%m.%Y %H:%M"))
+    )
+     
+    isolate(
+      newlist <- c(timelist, input)
+    )
+     
+    
     # read the info into a dataframe
     isolate(
       infoList <- t(sapply(fieldNames, function(x) x = input[[x]]))
     )
     
     # generate a file name based on timestamp, user name, and form contents
+    # isolate(
+    #   fileName <- paste0(
+    #     paste(
+    #       getFormattedTimestamp(),
+    #       input$lastName,
+    #       input$firstName,
+    #       digest(infoList, algo = "md5"),
+    #       sep = "_"
+    #     ),
+    #     ".csv"
+    #   )
+    # )
+    
+    
     isolate(
-      fileName <- paste0(
-        paste(
-          getFormattedTimestamp(),
-          input$lastName,
-          input$firstName,
-          digest(infoList, algo = "md5"),
-          sep = "_"
-        ),
-        ".csv"
-      )
+      infoList[1,1] <- format(Sys.time(), "%d.%m.%Y %H:%M")
     )
     
     # write out the results
     ### This code chunk writes a response and will have to change
     ### based on where we store persistent data
-    write.csv(x = infoList, file = file.path(resultsDir, fileName),
-              row.names = FALSE)
+    
+    write.table(x = infoList, file = file.path(resultsDir, "Test Data.csv"),
+       row.names = FALSE, append = TRUE, sep = ",", col.names = FALSE)
+    
+    ### Code to append to an existing table rather write a new table
+    
+    #write.table(infoList, file = "Test Data.csv", append = TRUE, sep = ",",
+               # row.names = FALSE, col.names = FALSE)
     ### End of writing data
     
     # indicate the the form was submitted to show a thank you page so that the
     # user knows they're done
     output$formSubmitted <- reactive({ TRUE })
+    
+    
   })
   
+ 
 })
