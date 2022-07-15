@@ -4,8 +4,7 @@
 
 # This is the ui portion of a shiny app that "mimics" a Google form, in the
 # sense that it lets users enter some predefined fields and saves the answer
-# as a .csv file.  Every submission is saved in its own file, so the results
-# must be concatenated together at the end
+# as a .csv file.  
 
 source("helpers.R")
 
@@ -22,12 +21,6 @@ shinyUI(fluidPage(
 
   title = "DS 421 Basic Student Info",
   h2("DS 421 Basic Student Info"),
-  
-  # admin panel will only be shown to users with sufficient privileges
-  uiOutput("adminPanel"),
-  
-  # show user info
-  verbatimTextOutput("userinfo"),
   
   conditionalPanel(
     # only show this form before the form is submitted
@@ -65,13 +58,7 @@ shinyUI(fluidPage(
     br(),
     actionButton(inputId = "submitBtn", label = "Submit")
     
-    # the following lines use a confirmation dialog before submitting
-    #modalTriggerButton("submitBtn", "#submitConfirmDlg", "Submit"),
-    #modalDialog(id="submitConfirmDlg", body = "Are you sure you want to submit?",
-    #            footer=list(
-    #  modalTriggerButton("submitConfirmDlg", "#submitConfirmDlg", "Submit"),
-    #  tags$button(type = "button", class = "btn btn-primary", 'data-dismiss' = "modal", "Cancel")
-    #))
+ 
   ),
   
   conditionalPanel(
@@ -87,6 +74,9 @@ shinyUI(fluidPage(
     span("Created by "),
     a("Dean Attali", href = "http://deanattali.com"),
     span(", Sept 2014"),
-    br(), br()
+    br(), br(),
+    span("Modified by "),
+    a("Matt Davis"),
+    span(", July 2022"),
   )
 ))

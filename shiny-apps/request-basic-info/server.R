@@ -1,3 +1,9 @@
+## Modified by Matt Davis
+## July 2022
+
+
+#Original code by:
+#######################################
 # Dean Attali
 # September 2014
 
@@ -5,11 +11,17 @@
 # sense that it lets users enter some predefined fields and saves the answer
 # as a .csv file.  Every submission is saved in its own file, so the results
 # must be concatenated together at the end
+############################################
+
+
+# This server side now writes new submissions to the end of a single file 
+# rather than individual .csv's.  Results no longer need to be concatenated 
+# separately.
 
 library(shiny)
 library(digest) # digest() Create hash function digests for R objects
 
-formName <- "2022-fall-basic-info"
+formName <- "2022-fall-Capstone-info"
 resultsDir <- file.path("data", formName)
 dir.create(resultsDir, recursive = TRUE, showWarnings = FALSE)
 
@@ -24,71 +36,8 @@ fieldNames <- c("submitTime",
                 "osType"
                 )
 
-# names of users that have admin power and can view all submitted responses
-adminUsers <- c("staff", "admin")
-
 shinyServer(function(input, output, session) {
 
-  #############################
-  ## NONE OF THE ADMIN PANEL IS NEEDED FOR DS421
-  
-  # ##########################################
-  # ##### Admin panel#####
-  # 
-  # # if logged in user is admin, show a table aggregating all the data
-  # isAdmin <- reactive({
-  #   !is.null(session$user) && session$user %in% adminUsers
-  # })
-  # infoTable <- reactive({
-  #   if (!isAdmin()) return(NULL)
-  #   
-  #   ### This code chunk reads all submitted responses and will have to change
-  #   ### based on where we store persistent data
-  #   infoFiles <- list.files(resultsDir)
-  #   allInfo <- lapply(infoFiles, function(x) {
-  #     read.csv(file.path(resultsDir, x))
-  #   })
-  #   ### End of reading data
-  #   
-  #   #allInfo <- data.frame(rbind_all(allInfo)) # dplyr version
-  #   #allInfo <- data.frame(rbindlist(allInfo)) # data.table version
-  #   allInfo <- data.frame(do.call(rbind, allInfo))
-  #   if (nrow(allInfo) == 0) {
-  #     allInfo <- data.frame(matrix(nrow = 1, ncol = length(fieldNames),
-  #                                  dimnames = list(list(), fieldNames)))
-  #   }
-  #   return(allInfo)
-  # })
-  # output$adminPanel <- renderUI({
-  #   if (!isAdmin()) return(NULL)
-  #   
-  #   div(id = "adminPanelInner",
-  #     h3("This table is only visible to admins",
-  #        style = "display: inline-block;"),
-  #     a("Show/Hide",
-  #       href = "javascript:toggleVisibility('adminTableSection');",
-  #       class = "left-space"),
-  #     div(id = "adminTableSection",
-  #       dataTableOutput("adminTable"),
-  #       downloadButton("downloadSummary", "Download results")
-  #     )
-  #   )
-  # })
-  # output$downloadSummary <- downloadHandler(
-  #   filename = function() { 
-  #     paste0(formName, "_", getFormattedTimestamp(), '.csv')  
-  #   },
-  #   content = function(file) {
-  #     write.csv(infoTable(), file, row.names = FALSE)
-  #   }
-  # )
-  # output$adminTable <- renderDataTable({
-  #   infoTable()
-  # })
-  # 
-  # ##### End admin panel #####
-  # ##########################################
-  
   # only enable the Submit button when the mandatory fields are validated
   observe({
     if (input$firstName == '' || input$lastName == '' ||
@@ -140,51 +89,23 @@ shinyServer(function(input, output, session) {
     #if (input$submitConfirmDlg < 1) return(NULL)
     if (input$submitBtn < 1) return(NULL)
     
-    #get system time of submission
-    isolate(
-      timelist <- list("submitTime" = format(Sys.time(), "%d.%m.%Y %H:%M"))
-    )
-     
-    isolate(
-      newlist <- c(timelist, input)
-    )
-     
-    
     # read the info into a dataframe
     isolate(
       infoList <- t(sapply(fieldNames, function(x) x = input[[x]]))
     )
     
-    # generate a file name based on timestamp, user name, and form contents
-    # isolate(
-    #   fileName <- paste0(
-    #     paste(
-    #       getFormattedTimestamp(),
-    #       input$lastName,
-    #       input$firstName,
-    #       digest(infoList, algo = "md5"),
-    #       sep = "_"
-    #     ),
-    #     ".csv"
-    #   )
-    # )
-    
-    
+    # Add submission time to the data being written to the log
     isolate(
       infoList[1,1] <- format(Sys.time(), "%d.%m.%Y %H:%M")
     )
     
-    # write out the results
+    # Append the results to the existing table
     ### This code chunk writes a response and will have to change
-    ### based on where we store persistent data
+    ### based on where we store persistent data (update the file name)
     
     write.table(x = infoList, file = file.path(resultsDir, "Test Data.csv"),
        row.names = FALSE, append = TRUE, sep = ",", col.names = FALSE)
     
-    ### Code to append to an existing table rather write a new table
-    
-    #write.table(infoList, file = "Test Data.csv", append = TRUE, sep = ",",
-               # row.names = FALSE, col.names = FALSE)
     ### End of writing data
     
     # indicate the the form was submitted to show a thank you page so that the
