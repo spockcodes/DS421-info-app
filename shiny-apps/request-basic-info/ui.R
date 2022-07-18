@@ -43,7 +43,7 @@ shinyUI(fluidPage(
     # form fields
     textInput(inputId = "firstName", label = "First name (as it appears on the roster) *"),
     textInput(inputId = "lastName", label = "Last name (as it appears on the roster) *"),
-    textInput(inputId = "email", label = "first.last@afacademy.af.edu"),
+    textInput(inputId = "email", label = "USAFA email -- first.last@afacademy.af.edu"),
     selectInput(inputId = "codeType", label = "Preferred Coding Language",
                 choices = c("", "C", "R", "Python", "Java",
                             "Other"),
