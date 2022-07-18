@@ -29,11 +29,10 @@ dir.create(resultsDir, recursive = TRUE, showWarnings = FALSE)
 fieldNames <- c("submitTime",
                 "firstName",
                 "lastName",
-                "studentNum",
                 "email",
                 "gitName",
-                "twitterName",
-                "osType"
+                "afsc",
+                "codeType"
                 )
 
 shinyServer(function(input, output, session) {
@@ -41,8 +40,7 @@ shinyServer(function(input, output, session) {
   # only enable the Submit button when the mandatory fields are validated
   observe({
     if (input$firstName == '' || input$lastName == '' ||
-          input$studentNum == '' ||
-          !validateStudentNum(input$studentNum)) {
+          input$email == '') {
       session$sendCustomMessage(type = "disableBtn", list(id = "submitBtn"))
     } else {
       session$sendCustomMessage(type = "enableBtn", list(id = "submitBtn"))
@@ -60,14 +58,6 @@ shinyServer(function(input, output, session) {
   })
   outputOptions(output, 'formSubmitted', suspendWhenHidden = FALSE)
 
-  # show an error beside the student number when the regex (4 digits) fails
-  output$studentNumErr <- renderUI({
-    if (input$studentNum != '') {
-      if(validateStudentNum(input$studentNum)) return(NULL)
-      span("Student number must be 4 digits", class = "left-space error")
-    }
-  })
-  
   # show a link to test the GitHub name
   output$gitTest <- renderUI({
     if (input$gitName == '') return(NULL)
@@ -76,14 +66,6 @@ shinyServer(function(input, output, session) {
       class = "left-space")
   })
   
-  # show a link to test the Twitter name
-  output$twitterTest <- renderUI({
-    if (input$twitterName == '') return(NULL)
-    a("Click here to test Twitter name", target = "_blank",
-      href = paste0("https://twitter.com/", input$twitterName),
-      class = "left-space")
-  })  
-
   # submit the form  
   observe({
     #if (input$submitConfirmDlg < 1) return(NULL)

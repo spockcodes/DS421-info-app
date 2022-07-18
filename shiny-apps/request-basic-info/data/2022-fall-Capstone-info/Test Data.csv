@@ -1,3 +1,1 @@
-"submitTime","firstName","lastName","studentNum","email","gitName","twitterName","osType"
-15.07.2022 17:01,new,test,9090,test@mail.edu,git,but,Mac
-15.07.2022 17:06,Matt,Davis,9345,matthew.davis@afacademy.af.edu,spockcodes,spocktweets,Mac
+"submitTime","firstName","lastName","email","gitName","afsc","codeType"

@@ -43,18 +43,14 @@ shinyUI(fluidPage(
     # form fields
     textInput(inputId = "firstName", label = "First name (as it appears on the roster) *"),
     textInput(inputId = "lastName", label = "Last name (as it appears on the roster) *"),
-    textInput(inputId = "studentNum",
-              label = "Last 4 digits of UBC student number *"),
-    uiOutput(outputId = "studentNumErr"),
     textInput(inputId = "email", label = "first.last@afacademy.af.edu"),
-    selectInput(inputId = "osType", label = "Preferred Operating system",
-                choices = c("", "Windows", "Mac", "Linux",
+    selectInput(inputId = "codeType", label = "Preferred Coding Language",
+                choices = c("", "C", "R", "Python", "Java",
                             "Other"),
                 selected = ""),  
     textInput(inputId = "gitName", label = "GitHub username"),
     uiOutput("gitTest"),
-    textInput(inputId = "twitterName", label = "Twitter username"),
-    uiOutput("twitterTest"),
+    textInput(inputId = "afsc", label = "Projected or Preferred AFSC"),
     br(),
     actionButton(inputId = "submitBtn", label = "Submit")
     
