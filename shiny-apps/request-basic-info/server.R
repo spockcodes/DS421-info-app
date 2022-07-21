@@ -20,6 +20,7 @@
 
 library(shiny)
 library(digest) # digest() Create hash function digests for R objects
+library(Microsoft365R)
 
 formName <- "2022-fall-Capstone-info"
 resultsDir <- file.path("data", formName)
@@ -30,6 +31,7 @@ fieldNames <- c("submitTime",
                 "firstName",
                 "lastName",
                 "email",
+                "gobyName",
                 "gitName",
                 "afsc",
                 "codeType"
@@ -40,7 +42,7 @@ shinyServer(function(input, output, session) {
   # only enable the Submit button when the mandatory fields are validated
   observe({
     if (input$firstName == '' || input$lastName == '' ||
-          input$email == '') {
+          input$email == '' || input$gitName == '') {
       session$sendCustomMessage(type = "disableBtn", list(id = "submitBtn"))
     } else {
       session$sendCustomMessage(type = "enableBtn", list(id = "submitBtn"))
@@ -81,12 +83,39 @@ shinyServer(function(input, output, session) {
       infoList[1,1] <- format(Sys.time(), "%d.%m.%Y %H:%M")
     )
     
+    # generate a file name based on timestamp, user name, and form contents
+    isolate(
+      fileName <- paste0(
+        paste(
+          getFormattedTimestamp(),
+          input$lastName,
+          input$firstName,
+          digest(infoList, algo = "md5"),
+          sep = "_"
+        ),
+        ".csv"
+      )
+    )
+    
+    write.csv(x = infoList, file = file.path(resultsDir, fileName),
+              row.names = FALSE)
+    
+    
     # Append the results to the existing table
     ### This code chunk writes a response and will have to change
     ### based on where we store persistent data (update the file name)
     
-    write.table(x = infoList, file = file.path(resultsDir, "Test Data.csv"),
-       row.names = FALSE, append = TRUE, sep = ",", col.names = FALSE)
+    
+    ############# 
+    # This statement appends new data to the end of an existing file
+    
+    #write.table(x = infoList, file = file.path(resultsDir, "Test Data.csv"),
+     #  row.names = FALSE, append = TRUE, sep = ",", col.names = FALSE)
+    
+    #############
+    
+    
+    
     
     ### End of writing data
     
