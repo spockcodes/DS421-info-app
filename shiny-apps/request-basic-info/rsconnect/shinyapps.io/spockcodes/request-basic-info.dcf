@@ -1,0 +1,11 @@
+name: request-basic-info
+title:
+username:
+account: spockcodes
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6675631
+bundleId: 6120984
+url: https://spockcodes.shinyapps.io/request-basic-info/
+when: 1658437575.90544
+lastSyncTime: 1658437575.90544
